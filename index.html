@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Métodos Numéricos: Bissecção e Eliminação de Gauss</title>
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M3 3h18v2H3V3zm0 7h18v2H3v-2zm0 7h18v2H3v-2z" fill="currentColor"/></svg>
+        <span>Métodos Numéricos</span>
+      </div>
+      <div class="subtitle">Bissecção (Bolzano) e Eliminação de Gauss</div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="tabs">
+      <button class="tab active" data-tab="bisseccao">Bissecção</button>
+      <button class="tab" data-tab="gauss">Gauss</button>
+    </div>
+
+    <section id="bisseccao" class="panel active">
+      <div class="grid">
+        <section class="card">
+          <h2 class="card-title">Configurações — Bissecção</h2>
+          <form id="form-bis" autocomplete="off">
+            <div class="field">
+              <label for="poly">Função (polinômio) <small>ex.: <code>-x^3 + 2x + 5</code></small></label>
+              <input id="poly" type="text" placeholder="-x^3 + 2x + 5" required />
+              <div class="hint">Fase I: localize um intervalo com troca de sinal; Fase II: refine a raiz até atender o critério de parada (ε). <em>(vide slides)</em></div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="a">a</label>
+                <input id="a" type="number" step="any" placeholder="-1" required />
+              </div>
+              <div class="field">
+                <label for="b">b</label>
+                <input id="b" type="number" step="any" placeholder="3" required />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="tol">Tolerância (ε)</label>
+                <input id="tol" type="number" step="any" value="1e-6" required />
+              </div>
+              <div class="field">
+                <label for="maxit">Máx. iterações</label>
+                <input id="maxit" type="number" min="1" value="50" required />
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="submit" class="btn primary">Calcular</button>
+              <button type="button" id="btn-detect" class="btn ghost">Detectar intervalo (Fase I)</button>
+              <button type="button" id="btn-example" class="btn ghost">Exemplo</button>
+              <button type="reset" class="btn danger">Limpar</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">Resultado — Bissecção</h2>
+          <div id="alert-bis" class="alert" hidden></div>
+
+          <div id="summary-bis" class="summary" hidden>
+            <div class="summary-item">
+              <span class="label">Raiz aproximada</span>
+              <span class="value" id="out-root">—</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">f(raiz)</span>
+              <span class="value" id="out-froot">—</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Iterações</span>
+              <span class="value" id="out-iters">—</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Erro estimado</span>
+              <span class="value" id="out-error">—</span>
+            </div>
+          </div>
+
+          <div class="canvas-wrap"><canvas id="plot" width="900" height="360"></canvas></div>
+
+          <div class="table-wrap">
+            <table id="table-bis" class="table">
+              <thead>
+                <tr>
+                  <th>#</th><th>a</th><th>b</th><th>m</th><th>f(m)</th><th>Erro</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section id="gauss" class="panel">
+      <div class="grid">
+        <section class="card">
+          <h2 class="card-title">Configurações — Eliminação de Gauss</h2>
+          <form id="form-gauss" autocomplete="off">
+            <div class="row">
+              <div class="field">
+                <label for="n">Ordem do sistema (n)</label>
+                <input id="n" type="number" min="2" max="8" value="3" required />
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <div class="actions"><button type="button" id="btn-build" class="btn ghost">Construir matriz</button></div>
+              </div>
+            </div>
+
+            <div id="matrix-area" class="matrix-area" hidden>
+              <div class="hint">Preencha a matriz aumentada [A|b]. Operações elementares: multiplicar linha por constante não nula; somar múltiplo de uma linha a outra. <em>(vide slides)</em></div>
+              <div id="mat-grid" class="mat-grid"></div>
+              <div class="actions">
+                <button type="submit" class="btn primary">Resolver (Gauss)</button>
+                <button type="button" id="btn-eg" class="btn ghost">Exemplo</button>
+                <button type="reset" class="btn danger">Limpar</button>
+              </div>
+            </div>
+          </form>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">Resultado — Gauss</h2>
+          <div id="alert-gauss" class="alert" hidden></div>
+
+          <div id="summary-gauss" class="summary" hidden>
+            <div class="summary-item"><span class="label">Sistema</span><span class="value" id="out-type">—</span></div>
+            <div class="summary-item"><span class="label">Etapas</span><span class="value" id="out-steps">—</span></div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="table-gauss" class="table">
+              <thead>
+                <tr>
+                  <th>k</th><th>Operação</th><th>Matriz aumentada [A|b]</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <div id="solution" class="solution" hidden>
+            <h3>Retrosubstituição — Solução</h3>
+            <ol id="bs-lines" class="bs-lines"></ol>
+            <div class="solution-box"><span id="sol-vector">x = ( … )</span></div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
